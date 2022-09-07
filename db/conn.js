@@ -1,7 +1,5 @@
 require('dotenv').config()
 
-
-const { matchOrigin } = require('@hapi/hapi/lib/cors')
 const { MongoClient } = require('mongodb')
 const url = process.env.CONNECTION_URL
 const client = new MongoClient(url)

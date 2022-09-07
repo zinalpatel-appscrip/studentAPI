@@ -31,5 +31,25 @@ module.exports = [
             ],
             handler: studentController.insertStudentInfo
         }
+    },
+    {
+        method: 'PATCH',
+        path: '/api/students/{id}',
+        config: {
+            pre: [
+                { method: requireAuth.requireAuth }
+            ],
+            handler: studentController.updateStudentInfo
+        }
+    },
+    {
+        method: 'GET',
+        path: '/api/students',
+        config: {
+            pre: [
+                { method: requireAuth.requireAuth }
+            ],
+            handler: studentController.getAllStudents
+        }
     }
 ]

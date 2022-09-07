@@ -6,8 +6,6 @@ function validateUser(user) {
 
         email: Joi.string()
             .email()
-            .min(5)
-            .max(15)
             .required(),
 
         password: Joi.string()

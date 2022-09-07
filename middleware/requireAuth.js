@@ -4,9 +4,9 @@ const Boom = require('@hapi/boom')
 const mongodb = require('mongodb')
 const db = require('../db/conn')
 
-const requireAuth =async  (req, res) => {
-    
-    try{
+const requireAuth = async (req, res) => {
+
+    try {
         const token = req.headers.token
         if (token) {
             const decodedToken = await jwt.verify(token, process.env.SECRET_KEY)
@@ -66,8 +66,7 @@ const requireAuth =async  (req, res) => {
         else {
             return Boom.unauthorized('Unauthorized')
         }
-    }catch(e)
-    {
+    } catch (e) {
         console.log(e)
         return Boom.unauthorized('Unauthorized')
     }
