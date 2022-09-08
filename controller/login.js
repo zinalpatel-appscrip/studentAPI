@@ -15,13 +15,13 @@ module.exports = {
             const user = await db.get().collection('studentAdmin').find({ email: req.payload.email , password: req.payload.password }).toArray()
             if (user.length) {
                 const token = await generateToken(user)
-                return ({ message: 'Logged In!', token: token })
+                return h.response({ message: 'Logged In!', token: token }).code(200)
             }
             else
-                return 'Invalid Credentials!!!'
+                return h.response({ message: 'Invalid Credentials!!!' }).code(409)
         }
         else   
-            return 'Invalid Credentials!!!'
+            return h.response({ message: 'Invalid Credentials!!!' }).code(409)
     },
 
 }

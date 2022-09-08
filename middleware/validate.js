@@ -1,8 +1,8 @@
 const Joi = require('joi')
 
-function validateUser(user) {
+// function validateUser(user) {
     // console.log('validate')
-    const JoiSchema = Joi.object({
+    const UserJoiSchema = Joi.object({
 
         email: Joi.string()
             .email()
@@ -20,12 +20,12 @@ function validateUser(user) {
             .optional(),
     }).options({ abortEarly: false });
 
-    return JoiSchema.validate(user)
-}
+    // return JoiSchema.validate(user)
+// }
 
-function validateStudent(student) {
+// function validateStudent(student) {
     // console.log('validate')
-    const JoiSchema = Joi.object().keys({
+    const StudentJoiSchema = Joi.object().keys({
         name: Joi.string()
             .required(),
 
@@ -73,7 +73,7 @@ function validateStudent(student) {
 
     }).options({ abortEarly: false });
 
-    return JoiSchema.validate(student)
-}
+    // return JoiSchema.validate(student)
+// }
 
-module.exports = { validateUser, validateStudent }
+module.exports = { UserJoiSchema, StudentJoiSchema }

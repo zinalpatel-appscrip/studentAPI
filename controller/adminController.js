@@ -12,19 +12,21 @@ module.exports = {
     insertData: async (req, h) => {
         try {
             let res = 'Error'
-            const isValid = validate.validateUser(req.payload)
+            // const isValid = validate.validateUser(req.payload)
             // console.log(isValid.error)
 
-            if (!isValid.error) {
+            // if (!isValid.error) {
                 req.payload.password = md5(req.payload.password) 
                 let result = await db.get().collection('studentAdmin').insertOne(req.payload)
                 res = result.acknowledged ? "Data Inserted!!" : 'An error occured'
-            }
-            else {
-                res = isValid.error.details
-            }
+                return h.response({ message: res }).code(201)
+            // }
+            // else {
+            //     res = isValid.error.details[0].message
+            //     return h.response({ message: res }).code(409)
+            // }
 
-            return res
+            // return res
         }
         catch (e) {
             // if (e.code === 11000)
