@@ -29,9 +29,6 @@ module.exports = {
             // return res
         }
         catch (e) {
-            // if (e.code === 11000)
-            //     res.send("This email is already in use")
-            // else
             console.log(e)
         }
     }

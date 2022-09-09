@@ -22,7 +22,7 @@ module.exports = {
                         return res.response({message: 'Logged Out!!'}).code(200)
                     }
                     else {
-                        return res.response({ message: 'Something Went Wrong!!'}).code(409)
+                        return Boom.unauthorized('Unauthorized')
                     }
                 }
                 else

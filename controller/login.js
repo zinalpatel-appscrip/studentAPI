@@ -18,12 +18,11 @@ module.exports = {
                 return h.response({ message: 'Logged In!', token: token }).code(200)
             }
             else
-                return h.response({ message: 'Invalid Credentials!!!' }).code(409)
+                return h.response({ message: 'Invalid Credentials!!!' }).code(401)
         }
         else   
-            return h.response({ message: 'Invalid Credentials!!!' }).code(409)
-    },
-
+            return h.response({ message: 'Invalid Credentials!!!' }).code(401)
+    }
 }
 
 async function generateToken(user) {

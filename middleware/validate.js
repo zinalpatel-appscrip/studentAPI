@@ -58,7 +58,7 @@ const Joi = require('joi')
         }).unknown().description('anything'),
 
         //If student is present then take Entry & exit timing
-        timing: Joi.any().when('isPresent',{
+        timing: Joi.object().when('isPresent',{
             is: Joi.alternatives().try(
                 true,
                 1

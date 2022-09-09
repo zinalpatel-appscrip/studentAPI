@@ -8,17 +8,17 @@ module.exports = {
         try {
             //validate student info
             let res = 'Error'
-            const isValid = validate.validateStudent(req.payload)
+            // const isValid = validate.validateStudent(req.payload)
 
-            if (!isValid.error) {
+            // if (!isValid.error) {
                 const result = await db.get().collection('studentInfo').insertMany([req.payload])
                 res = result.acknowledged ? "Student Created!!" : 'An error occured'
                 return h.response({ message: res }).code(201)
-            }
-            else {
-                res = isValid.error.details[0].message
-                return h.response({ message: res }).code(409) //Conflict
-            }
+            // }
+            // else {
+            //     res = isValid.error.details[0].message
+            //     return h.response({ message: res }).code(409) //Conflict
+            // }
 
         } catch (e) {
             console.log(e)
@@ -32,16 +32,16 @@ module.exports = {
             let data = await db.get().collection('studentInfo').findOne({ _id: mongodb.ObjectId(req.params.id) })
             // console.log(data)
             if (data) {
-                const isValid = validate.validateStudent(req.payload)
-                if (!isValid.error) {
+                // const isValid = validate.validateStudent(req.payload)
+                // if (!isValid.error) {
                     let result = await db.get().collection('studentInfo').updateOne({ _id: mongodb.ObjectId(req.params.id) }, { $set: req.payload })
                     res = 'Data Updated!!'
                     return h.response({ message: res }).code(200)
-                }
-                else {
-                    res = isValid.error.details
-                    return h.response({ message: res }).code(409) //Conflict
-                }
+                // }
+                // else {
+                //     res = isValid.error.details
+                //     return h.response({ message: res }).code(409) //Conflict
+                // }
             }
             else {
                 res = 'requested student not found'

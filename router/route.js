@@ -5,124 +5,67 @@ const requireAuth = require('../middleware/requireAuth')
 const studentController = require('../controller/studentController')
 const Joi = require('joi')
 const validate = require('../middleware/validate')
+const Boom = require('@hapi/boom')
+const responses = require('../config/response')
 
 module.exports = [
+    //Student Admin Data
     {
         method: 'POST',
-        path: '/api/studentAdmin',
-        // pre: requireAuth(),
-        // config: {
-            // handler: adminController.insertData,
-            // description: 'API for adding Admin info. ',
-            // notes: 'It does not require Login. Pass Email,Password,Name & Phone.',
-            // tags: ['admin', 'api'],
-            // plugins: {
-            //     'hapi-swagger': {
-            //         responses: {
-            //             201: {
-            //                 description: 'This status code will be returned if Details are successfully inserted!',
-            //                 schema: Joi.object({
-            //                     message: Joi.string().example('Data Inserted!!')
-            //                 })
-            //             },
-            //             // 204: undefined, // pass-through "No Content" to swagger definition
-            //             409: {
-            //                 description: 'It will be returned if payload does not statisfy all validations.',
-            //                 schema: Joi.object({
-            //                     message: Joi.string().example('email must be a valid email')
-            //                 })
-            //             }
-            //         }
-            //     }
-            // },
-            
-            
-                // headers: Joi.object({
-                //     'authorization': Joi.string().required()
-                // }).unknown()
-            
-        
+        path: '/api/studentAdmin',    
         options: {
             handler: adminController.insertData,
             description: 'API for adding Admin info. ',
             notes: 'It does not require Login. Pass Email,Password,Name & Phone.',
             tags: ['admin', 'api'],
             validate: {
-                // params: Joi.object({
-                //     pageNo: Joi.number()
-                // }),
                 payload: validate.UserJoiSchema,
-                // failAction: (req, reply, source, error) => {
-                //     // return reply({ message: error.output.payload.message }).code(error.output.statusCode);
-                //     console.log(error)
-                // }
-                // failAction: 'error',
-                // response: {"statusCode":400,"error":"Bad Request","message":"Invalid request query input"}
-                // failAction: 'log',
-                // log to console: Error: Invalid request query input
                 failAction(request, h, err) {
-                    request.log('error', err.message)
-                    throw err;
-                },
-
-            },
-             plugins: {
-                'hapi-swagger': {
-                    responses: {
-                        201: {
-                            description: 'This status code will be returned if Details are successfully inserted!',
-                            schema: Joi.object({
-                                message: Joi.string().example('Data Inserted!!')
-                            })
-                        },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        409: {
-                            description: 'It will be returned if payload does not statisfy all validations.',
-                            schema: Joi.object({
-                                message: Joi.string().example('email must be a valid email')
-                            })
-                        }
-                    }
+                    // console.log(err)
+                    // console.log(request)
+                    return Boom.badRequest(`${err.details[0].message}`)
                 }
             },
-            
+            plugins: {
+                'hapi-swagger': {
+                     responses: responses.studentAdminRes
+                 }
+            },
         }
     },
+
+    //Login
     {
         method: 'POST',
         path: '/api/login',
         // pre: requireAuth(),
-        config: {
+        options: {
             handler: login.login,
             description: 'API for LogIn. ',
             tags: ['authentication', 'api'],
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        200: {
-                            description: 'This status code will be returned if User Succesfully Logs In',
-                            schema: Joi.object({
-                                message: Joi.string().example('Logged In!').required(),
-                                token: Joi.string().example('JWT Token').required()
-                            })
-                        },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        409: {
-                            description: 'It will be returned if Credentials are Invalid.',
-                            schema: Joi.object({
-                                message: Joi.string().example('Invalid Credentials!!!').required()
-                            })
-                        }
-                    }
+                    responses: responses.loginRes
                 }
             },
+            validate:{
+                payload: Joi.object({
+                    email:Joi.string().email().required(),
+                    password: Joi.string().required()
+                }),
+                failAction(request, h, err) {
+                    return Boom.badRequest(`${err.details[0].message}`)
+                }   
+            } 
         }
 
     },
+
+    //Student Insert
     {
         method: 'POST',
         path: '/api/students',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -130,31 +73,37 @@ module.exports = [
             description: 'API for Inserting Student Info After LogIn. ',
             // notes: '',
             tags: ['students', 'api'],
+            validate: {
+                payload: validate.StudentJoiSchema,
+                failAction(request, h, err) {//
+                    return Boom.badRequest(`${err.details[0].message}`)
+                },
+                headers: Joi.object({
+                    'token': Joi.string().required()
+                }).unknown()
+            }, 
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        201: {
-                            description: 'This status code will be returned if Details are successfully inserted!',
-                            schema: Joi.object({
-                                message: Joi.string().example('Student Created!!')
-                            })
-                        },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        409: {
-                            description: 'It will be returned if payload does not statisfy all validations.',
-                            schema: Joi.object({
-                                message: Joi.string().example('addmission_date must be less than now')
-                            })
-                        }
-                    }
-                }
-            },
+                    responses: responses.StudentInsertRes
+                },
+                validate: {
+                    payload: validate.StudentJoiSchema,
+                    failAction(request, h, err) {//
+                        return Boom.badRequest(`${err.details[0].message}`)
+                    },
+                    headers: Joi.object({
+                        'token': Joi.string().required()
+                    }).unknown()
+                }  
+            }
         }
     },
+
+    //Update Student
     {
         method: 'PATCH',
         path: '/api/students/{id}',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -162,37 +111,32 @@ module.exports = [
             description: 'API for updating Student Info After LogIn. ',
             // notes: '',
             tags: ['students', 'api'],
+            validate: {
+                payload: validate.StudentJoiSchema,
+                failAction(request, h, err) {
+                    console.log(err)
+                    return Boom.badRequest(`${err.details[0].message}`)
+                },
+                headers: Joi.object({
+                    'token': Joi.string().required()
+                }).unknown(),
+                params: Joi.object({
+                    id: Joi.string()
+                })
+            },
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        201: {
-                            description: 'This status code will be returned if Details are successfully updated!',
-                            schema: Joi.object({
-                                message: Joi.string().example('Data Updated!!')
-                            })
-                        },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        409: {
-                            description: 'It will be returned if payload does not statisfy all validations.',
-                            schema: Joi.object({
-                                message: Joi.string().example('addmission_date must be less than now')
-                            })
-                        },
-                        404: {
-                            description: 'It will be returned if No data found with given student id',
-                            schema: Joi.object({
-                                message: Joi.string().example('requested student not found')
-                            })
-                        }
-                    }
+                    responses: responses.StudentUpadteRes,
                 }
             },
         }
     },
+
+    //API for search all students
     {
         method: 'GET',
         path: '/api/students',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -202,45 +146,30 @@ module.exports = [
             tags: ['students', 'api'],
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        200: {
-                            description: 'This status code will be returned if Details are found.',
-                            schema: Joi.object({
-                                data: Joi.array().example([
-                                    {
-                                        "_id": "63196f322ee2e759e0f0f9a1",
-                                        "name": "s1",
-                                        "email": "s1@email.com",
-                                        "phone": "454545",
-                                        "preferedSubject": [
-                                            "Maths",
-                                            "Science"
-                                        ],
-                                        "age": 22,
-                                        "isPresent": true,
-                                        "addmission_date": "1-1-2000",
-                                        "leaving_date": "1-1-2021",
-                                        "contact_person_details": {
-                                            "relation": "father",
-                                            "contact": "89845555"
-                                        },
-                                        "timing": {
-                                            "entry_time": "08:30",
-                                            "exit_time": "05:00"
-                                        }
-                                    },
-                                ])
-                            })
-                        }
-                    }
+                    responses: responses.GetAllStudentsRes,
+                    validate: {
+                        headers: Joi.object({
+                            'token': Joi.string().required()
+                        }).unknown(),
+                        query: Joi.object({
+                            name: Joi.string(),
+                            email: Joi.string(),
+                            phone: Joi.string(),
+                            above: Joi.string(),
+                            below: Joi.string(),
+                            page: Joi.string()
+                        })
+                    },
                 }
             },
         }
     },
+
+    //API for getting specific student detail
     {
         method: 'GET',
         path: '/api/students/{id}',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -250,51 +179,25 @@ module.exports = [
             tags: ['students', 'api'],
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        200: {
-                            description: 'This status code will be returned if Details are found.',
-                            schema: Joi.object({
-                                data: Joi.array().example([
-                                    {
-                                        "_id": "63196f322ee2e759e0f0f9a1",
-                                        "name": "s1",
-                                        "email": "s1@email.com",
-                                        "phone": "454545",
-                                        "preferedSubject": [
-                                            "Maths",
-                                            "Science"
-                                        ],
-                                        "age": 22,
-                                        "isPresent": true,
-                                        "addmission_date": "1-1-2000",
-                                        "leaving_date": "1-1-2021",
-                                        "contact_person_details": {
-                                            "relation": "father",
-                                            "contact": "89845555"
-                                        },
-                                        "timing": {
-                                            "entry_time": "08:30",
-                                            "exit_time": "05:00"
-                                        }
-                                    },
-                                ])
-                            })
-                        },
-                        404: {
-                            description: 'This status code will be returned if NO Details are found.',
-                            schema: Joi.object({
-                                message: Joi.string().example("This student is not exsists")
-                            })
-                        }
-                    }
+                    responses: responses.getSpecificStudentRes,
+                    validate: {
+                        headers: Joi.object({
+                            'token': Joi.string().required()
+                        }).unknown(),
+                        params: Joi.object({
+                            id: Joi.string()
+                        })
+                    },
                 }
-            },
+            }
         }
     },
+
+    //API for deleting Students
     {
         method: 'DELETE',
         path: '/api/students',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -304,35 +207,25 @@ module.exports = [
             tags: ['students', 'api'],
             plugins: {
                 'hapi-swagger': {
-                    responses: {
-                        200: {
-                            description: 'Returned If Data Succesfully deleted',
-                            schema: Joi.object({
-                                message: Joi.string().example('Data deleted successfully').required()
-                            })
-                        },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        404: {
-                            description: 'No student found.',
-                            schema: Joi.object({
-                                message: Joi.string().example('No data found').required()
-                            })
-                        },
-                        500: {
-                            description: 'This error occur while internal server error.',
-                            schema: Joi.object({
-                                message: Joi.string().example('Internal server error').required()
-                            })
-                        }
+                    responses: responses.deleteStudentsRes,
+                    validate: {
+                        headers: Joi.object({
+                            'token': Joi.string().required()
+                        }).unknown(),
+                        payload: Joi.object({
+                            ids: Joi.array()
+                        })
                     }
                 }
             }
         }
     },
+
+    //Logout
     {
         method: 'GET',
         path: '/api/logout',
-        config: {
+        options: {
             pre: [
                 { method: requireAuth.requireAuth }
             ],
@@ -349,15 +242,26 @@ module.exports = [
                                 message: Joi.string().example('Logged Out!!!').required(),
                             })
                         },
-                        // 204: undefined, // pass-through "No Content" to swagger definition
-                        409: {
-                            description: 'It will be returned if it does not find valid token.',
+                        401: {
+                            description: 'If provided token is invalid or not provided.',
                             schema: Joi.object({
-                                message: Joi.string().example('Something Went Wrong!!').required()
+                                statusCode: Joi.number().example(401),
+                                error: Joi.string().example('Unauthorized'),
+                                message: Joi.string().example('Unauthorized')
                             })
-                        }
-                    }
+                        },
+                    },
+                    validate: {
+                        headers: Joi.object({
+                            'token': Joi.string().required()
+                        }).unknown()
+
+                        // failAction(request, h, err) {
+                        //     return Boom.badRequest(`${err.details[0].message}`)
+                        // }
+                    } 
                 }
+               
             }
         }
     }
