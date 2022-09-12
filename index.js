@@ -1,8 +1,15 @@
 const Hapi = require('@hapi/hapi')
 const router = require('./router/route')
 const db = require('./db/conn')
+const i18n = require('i18n')
+const path = require('path')
 
 require('dotenv').config()
+
+i18n.configure({
+    directory: path.join(__dirname,'./locales'),
+    objectNotation: true
+})
 
 const options = {
     info: {
@@ -38,7 +45,7 @@ const init = async () => {
         }
     ])
 
-    await server.start()
+    await server.start((req, res) => i18n.init(req, res))
     await db.dbConnect()
     server.route(router)
     console.log('Server running on %s', server.info.uri)

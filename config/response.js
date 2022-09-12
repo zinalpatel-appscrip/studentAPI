@@ -110,6 +110,7 @@ const GetAllStudentsRes =  {
         200: {
             description: 'This status code will be returned if Details are found.',
             schema: Joi.object({
+                message: Joi.string().example('Data Found!!'),
                 data: Joi.array().example([
                     {
                         "_id": "63196f322ee2e759e0f0f9a1",
@@ -151,6 +152,7 @@ const getSpecificStudentRes = {
     200: {
         description: 'This status code will be returned if Details are found.',
             schema: Joi.object({
+                message: Joi.string().example('Data Found!!'),
                 data: Joi.array().example([
                     {
                         "_id": "63196f322ee2e759e0f0f9a1",

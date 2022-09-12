@@ -1,11 +1,13 @@
 let md5 = require('md5')
 const jwt = require('jsonwebtoken')
 const db = require('../db/conn')
+const i18n = require('i18n')
 
 
 module.exports = {
     
     login: async function name(req,h) {
+        i18n.setLocale(req.headers['accept-language'])
         //check if email exists in db
         const isEmailExists = await db.get().collection('studentAdmin').find({email: req.payload.email}).toArray()
         if(isEmailExists.length)
@@ -15,13 +17,13 @@ module.exports = {
             const user = await db.get().collection('studentAdmin').find({ email: req.payload.email , password: req.payload.password }).toArray()
             if (user.length) {
                 const token = await generateToken(user)
-                return h.response({ message: 'Logged In!', token: token }).code(200)
+                return h.response({ message: i18n.__('login.200.message'), token: token }).code(200)
             }
             else
-                return h.response({ message: 'Invalid Credentials!!!' }).code(401)
+                return h.response({ message: i18n.__('login.401.message') }).code(401)
         }
         else   
-            return h.response({ message: 'Invalid Credentials!!!' }).code(401)
+            return h.response({ message: i18n.__('login.401.message') }).code(401)
     }
 }
 

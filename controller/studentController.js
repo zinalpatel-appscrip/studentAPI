@@ -1,19 +1,21 @@
 const db = require('../db/conn')
 const validate = require('../middleware/validate')
 const mongodb = require('mongodb')
+const i18n = require('i18n')
 
 
 module.exports = {
     insertStudentInfo: async (req, h) => {
         try {
+            i18n.setLocale(req.headers['accept-language'])
             //validate student info
             let res = 'Error'
             // const isValid = validate.validateStudent(req.payload)
 
             // if (!isValid.error) {
                 const result = await db.get().collection('studentInfo').insertMany([req.payload])
-                res = result.acknowledged ? "Student Created!!" : 'An error occured'
-                return h.response({ message: res }).code(201)
+                // res = result.acknowledged ? "Student Created!!" : 'An error occured'
+            return h.response({ message: i18n.__('student.insert.201.message') }).code(201)
             // }
             // else {
             //     res = isValid.error.details[0].message
@@ -26,6 +28,7 @@ module.exports = {
     },
     //Update Student
     updateStudentInfo: async (req, h) => {
+        i18n.setLocale(req.headers['accept-language'])
         try {
             let res = 'Error'
             //check if resouse exsists
@@ -35,8 +38,8 @@ module.exports = {
                 // const isValid = validate.validateStudent(req.payload)
                 // if (!isValid.error) {
                     let result = await db.get().collection('studentInfo').updateOne({ _id: mongodb.ObjectId(req.params.id) }, { $set: req.payload })
-                    res = 'Data Updated!!'
-                    return h.response({ message: res }).code(200)
+                    // res = 'Data Updated!!'
+                return h.response({ message: i18n.__('student.update.200.message') }).code(200)
                 // }
                 // else {
                 //     res = isValid.error.details
@@ -45,7 +48,7 @@ module.exports = {
             }
             else {
                 res = 'requested student not found'
-                return h.response({ message: res }).code(404)
+                return h.response({ message: i18n.__('student.update.404.message') }).code(404)
             }
 
         }
@@ -55,7 +58,7 @@ module.exports = {
     },
     //search all students with filter
     getAllStudents: async (req, h) => {
-
+        i18n.setLocale(req.headers['accept-language'])
         try {
             // const data = req.params.filter
             const name = req.query.name
@@ -74,7 +77,7 @@ module.exports = {
                     }
                 ]).toArray()
 
-                return h.response({ data: result }).code(200)
+                return h.response({ message: i18n.__('student.getAll.200.message') , data: result }).code(200)
             }
 
             if (above || below) {
@@ -96,7 +99,7 @@ module.exports = {
                     }
                 ]).toArray()
 
-                return h.response({ data: result }).code(200)
+                return h.response({ message: i18n.__('student.getAll.200.message'), data: result }).code(200)
             }
 
         } catch (e) {
@@ -106,6 +109,7 @@ module.exports = {
 
     },
     getSpecificStudent: async (req, h) => {
+        i18n.setLocale(req.headers['accept-language'])
         try {
             const id = req.params.id
 
@@ -114,25 +118,26 @@ module.exports = {
             }).toArray()
 
             if (student.length)
-                return h.response({ data: student }).code(200)
+                return h.response({ message: i18n.__('student.getSpecific.200.message'),data: student }).code(200)
             else
-                return h.response({ message: "This student is not exsists" }).code(404)
+                return h.response({ message: i18n.__('student.getSpecific.404.message') }).code(404)
         } catch (e) {
             console.log(e)
         }
     },
     //delete students
     deleteStudents: async (req, h) => {
+        i18n.setLocale(req.headers['accept-language'])
         const ids = req.payload.ids
 
         let objectids = ids.map(id => mongodb.ObjectId(id))
         const result = await db.get().collection('studentInfo').deleteMany({ _id: { $in: objectids } })
 
         if(result.deletedCount)
-            return h.response({message: 'Data deleted successfully'}).code(200)
+            return h.response({ message: i18n.__('student.delete.200.message') }).code(200)
         else if (result.deletedCount === 0)
-            return h.response({ message: 'No data found' }).code(404)
+            return h.response({ message: i18n.__('student.delete.404.message') }).code(404)
         else
-            return h.response({ message: 'Internal Server Error' }).code(500)
+            return h.response({ message: i18n.__('student.delete.500.message') }).code(500)
     }
 }

@@ -20,6 +20,9 @@ module.exports = [
             tags: ['admin', 'api'],
             validate: {
                 payload: validate.UserJoiSchema,
+                headers: Joi.object({
+                    'accept-language': Joi.string().required()
+                }).unknown(),
                 failAction(request, h, err) {
                     // console.log(err)
                     // console.log(request)
@@ -53,6 +56,9 @@ module.exports = [
                     email:Joi.string().email().required(),
                     password: Joi.string().required()
                 }),
+                headers: Joi.object({
+                    'accept-language': Joi.string().required()
+                }).unknown(),
                 failAction(request, h, err) {
                     return Boom.badRequest(`${err.details[0].message}`)
                 }   
@@ -79,7 +85,8 @@ module.exports = [
                     return Boom.badRequest(`${err.details[0].message}`)
                 },
                 headers: Joi.object({
-                    'token': Joi.string().required()
+                    'token': Joi.string().required(),
+                    'accept-language': Joi.string().required()
                 }).unknown()
             }, 
             plugins: {
@@ -118,7 +125,8 @@ module.exports = [
                     return Boom.badRequest(`${err.details[0].message}`)
                 },
                 headers: Joi.object({
-                    'token': Joi.string().required()
+                    'token': Joi.string().required(),
+                    'accept-language': Joi.string().required()
                 }).unknown(),
                 params: Joi.object({
                     id: Joi.string()
@@ -149,7 +157,8 @@ module.exports = [
                     responses: responses.GetAllStudentsRes,
                     validate: {
                         headers: Joi.object({
-                            'token': Joi.string().required()
+                            'token': Joi.string().required(),
+                            'accept-language': Joi.string().required()
                         }).unknown(),
                         query: Joi.object({
                             name: Joi.string(),
@@ -182,7 +191,8 @@ module.exports = [
                     responses: responses.getSpecificStudentRes,
                     validate: {
                         headers: Joi.object({
-                            'token': Joi.string().required()
+                            'token': Joi.string().required(),
+                            'accept-language': Joi.string().required()
                         }).unknown(),
                         params: Joi.object({
                             id: Joi.string()
@@ -210,7 +220,8 @@ module.exports = [
                     responses: responses.deleteStudentsRes,
                     validate: {
                         headers: Joi.object({
-                            'token': Joi.string().required()
+                            'token': Joi.string().required(),
+                            'accept-language': Joi.string().required()
                         }).unknown(),
                         payload: Joi.object({
                             ids: Joi.array()
@@ -253,7 +264,8 @@ module.exports = [
                     },
                     validate: {
                         headers: Joi.object({
-                            'token': Joi.string().required()
+                            'token': Joi.string().required(),
+                            'accept-language': Joi.string().required()
                         }).unknown()
 
                         // failAction(request, h, err) {
